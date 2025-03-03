@@ -15,6 +15,10 @@ async function copyFileFromInstructions() {
 
         const content = await fs.readFile(sourceFile, 'utf8')
 
+        if (!sourceFile || !targetFile) {
+            console.error('Instrukce nejsou správné. Očekává se: "zdrojový_soubor cílový_soubor".');
+            return;
+          }
         
         await fs.writeFile(targetFile, content, 'utf8') 
         console.log('Data byla úspěšné zkopírovaná.')
