@@ -1,32 +1,36 @@
-import { promises as fs } from 'fs';
+import { rejects } from 'assert';
+import { error } from 'console';
+import fs from 'fs';
+import { resolve } from 'path';
 
-async function copyFileFromInstructions() {
-    try{
-        const instruction = await fs.readFile('instrukce.txt','utf8');
 
-        const[sourceFile, targetFile] = instruction.trim().split(/\s+/);
-
-        try{
-            await fs.access(sourceFile);
-        } catch (err) {
-            console.error('Zdrojový soubor neexistuje');
-            return;
-        }
-
-        const content = await fs.readFile(sourceFile, 'utf8')
-
-        if (!sourceFile || !targetFile) {
-            console.error('Instrukce nejsou správné. Očekává se: "zdrojový_soubor cílový_soubor".');
-            return;
-          }
-        
-        await fs.writeFile(targetFile, content, 'utf8') 
-        console.log('Data byla úspěšné zkopírovaná.')
-
-    }   catch (error) {
-        console.log('Nastala chyba', error);
-    }
-
+const readFile = (name) => {
+    return new Promise((resolve, reject) =>{
+        fs.readFile(name, (error, data) => {
+            if (error) {
+                reject(error)
+            } else {
+                resolve(data.toString())
+            }
+        })
+    }) 
 }
+const writeFile = (name, data) => (name, data) => {
+    return new Promise((resolve, reject) => {
+        fs.writeFile(name, data, (error) => {
+           if (error) {
+            reject(error)
+           } else {
+            resolve()
+           }
+        })
+    })
+}
+readFile('instrukce.txt').then((instrukce) => {
+    const [vstup, vystup] = instrukce.split(' ')
 
-copyFileFromInstructions()
+    return readFile(vstup).then((obsahVstupu) => {
+        return writeFile(vystup, obsahVstupu)
+    })
+})
+
