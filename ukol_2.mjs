@@ -3,11 +3,11 @@ import { readFile, writeFile } from 'fs/promises';
 const writeAndReadFile = async () => {
 
     try {
-        const instrukce = await readFile('instrukce.txt', 'utf-8')
+        const instrukce = await readFile('instrukce2.txt', 'utf-8')
         const n = parseInt(instrukce.trim())
 
         if (isNaN(n)) {
-            throw new error('Instrukce neobsahují číslo')
+            throw new Error('Instrukce neobsahují číslo')
         }
 
         const promises = [];
