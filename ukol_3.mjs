@@ -38,7 +38,6 @@ const server = http.createServer(async (req, res) => {
 
     if (req.url === '/increase') {
       const newValue = await modifyCounter(value => value + 1);
-      res.setHeader('Content-Type', 'text/plain; charset=utf-8');
       res.end(`Counter increased to ${newValue}`);
     } else if (req.url === '/decrease') {
       const newValue = await modifyCounter(value => value - 1);
