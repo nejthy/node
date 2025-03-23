@@ -9,12 +9,12 @@ import { title } from 'process'
 const todos = [
     {
         id: 1,
-        title: 'Zajit na pivo',
+        title: 'Udělat úkol na node',
         done: false,
     },
     {
         id: 2,
-        title: 'Doplnit scripty',
+        title: 'Uklidit',
         done: false,   
     },
 ]
@@ -33,6 +33,20 @@ app.get('/', async (c) => {
     return c.html(rendered)
 })
 
+app.get('/todo/:id', async (c) => {
+    const id = Number(c.req.param('id'))
+    const todo = todos.find((todo) => todo.id === id)
+
+    if (!todo) return c.notFound()
+
+    const rendered = await renderFile('views/todo.html', {
+        title: 'Detail todo',
+        todo,
+    })
+
+    return c.html(rendered)
+})
+
 app.post('/todos', async (c) => {
     const form = await c.req.formData()
 
@@ -43,8 +57,28 @@ todos.push({
     done: false
 })
 
+
 return c.redirect('/')
 })
+
+
+app.post('/todo/:id', async (c) => {
+    const id = Number(c.req.param('id'))
+
+    const todo = todos.find((todo) => todo.id === id)
+
+    if (!todo) return c.notFound()
+
+    const form = await c.req.formData()
+    const newTitle = form.get('title')
+
+    if (typeof newTitle === 'string' && newTitle.trim() !== '') {
+        todo.title = newTitle.trim()
+    }
+
+    return c.redirect('/todo/' + id)
+})
+
 
 app.get('/todos/:id/toggle', async (c) => {
     const id = Number(c.req.param('id'))
@@ -67,6 +101,19 @@ app.get('/todos/:id/remove', async (c) => {
     return c.redirect('/')
 
 })
+
+app.get('/todo/:id/toggle', async (c) => {
+    const id = Number(c.req.param('id'))
+    const todo = todos.find((todo) => todo.id === id)
+
+
+    if (!todo) return c.notFound()
+
+    todo.done = !todo.done
+
+    return c.redirect('/todo/' + id)
+})
+
 
 serve(app, (info) => {
     console.log('App started on http://localhost:' + info.port)
