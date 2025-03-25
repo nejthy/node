@@ -80,17 +80,7 @@ app.post('/todo/:id', async (c) => {
 })
 
 
-app.get('/todos/:id/toggle', async (c) => {
-    const id = Number(c.req.param('id'))
 
-    const todo = todos.find((todo) => todo.id === id)
-
-    if (!todo) return c.notFound()
-
-    todo.done = !todo.done
-
-    return c.redirect('/')
-})
 
 app.get('/todos/:id/remove', async (c) => {
     const id = Number(c.req.param('id'))
@@ -102,17 +92,18 @@ app.get('/todos/:id/remove', async (c) => {
 
 })
 
-app.get('/todo/:id/toggle', async (c) => {
+app.get('/toggle/:id', async (c) => {
     const id = Number(c.req.param('id'))
     const todo = todos.find((todo) => todo.id === id)
-
 
     if (!todo) return c.notFound()
 
     todo.done = !todo.done
 
-    return c.redirect('/todo/' + id)
+    const redirectTo = c.req.query('redirectTo') || '/'
+    return c.redirect(redirectTo)
 })
+
 
 
 serve(app, (info) => {

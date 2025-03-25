@@ -13,17 +13,18 @@
     <h1><%= title.toUpperCase() %></h1>
     <ul>
         <% for (const todo of todos) { %>
-        <li> <a href="/todo/<%= todo.id %>"><%= todo.title %> </a> 
+          <li>
+            <a href="/todo/<%= todo.id %>"><%= todo.title %></a>
             <% if (todo.done) { %>
-                <a href="/todos/<%= todo.id %>/toggle">dokončeno</a>
-                <a href="/todos/<%= todo.id %>/remove">odebrat</a>
+              <a href="/toggle/<%= todo.id %>?redirectTo=/">dokončeno</a>
+              <a href="/todos/<%= todo.id %>/remove">odebrat</a>
             <% } else { %>
-                <a href="/todos/<%= todo.id %>/toggle">nedokončeno</a>
+              <a href="/toggle/<%= todo.id %>?redirectTo=/">nedokončeno</a>
             <% } %>
-        </li>
-       
+          </li>
         <% } %>
-    </ul>
+      </ul>
+      
 
     <form method="post" action="/todos">
     <input name="title" />

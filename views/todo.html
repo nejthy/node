@@ -15,9 +15,11 @@
     <p><strong>Stav:</strong> <%= todo.done ? 'DOKONČENO' : 'NEDOKONČENO' %></p>
 
     <p>
-        <a href="/todo/<%= todo.id %>/toggle">Změnit stav</a> |
+        <a href="/toggle/<%= todo.id %>?redirectTo=/todo/<%= todo.id %>">Změnit stav</a> |
         <a href="/todos/<%= todo.id %>/remove">Odstranit</a>
-    </p>
+      </p>
+      
+      
 
     <form method="post" action="/todo/<%= todo.id %>">
         <input name="title" placeholder="Nový titulek" />
