@@ -100,8 +100,7 @@ app.get('/toggle/:id', async (c) => {
 
     todo.done = !todo.done
 
-    const redirectTo = c.req.query('redirectTo') || '/'
-    return c.redirect(redirectTo)
+    return c.redirect(c.req.header("Referer"))
 })
 
 
