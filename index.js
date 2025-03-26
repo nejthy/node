@@ -4,20 +4,11 @@ import {logger} from 'hono/logger'
 import { serveStatic } from '@hono/node-server/serve-static'
 import { renderFile } from 'ejs'
 import { title } from 'process'
-
-
-const todos = [
-    {
-        id: 1,
-        title: 'Udělat úkol na node',
-        done: false,
-    },
-    {
-        id: 2,
-        title: 'Uklidit',
-        done: false,   
-    },
-]
+import { drizzle } from "drizzle-orm/libsql"
+import { todosTable } from "./src/schema.js"
+import { eq } from 'drizzle-orm'
+ 
+const db = drizzle({ connection: "file:db.sqlite" })
 
 const app = new Hono()
 
@@ -25,6 +16,8 @@ app.use(logger())
 app.use(serveStatic({ root: 'public'}))
 
 app.get('/', async (c) => {
+    const todos = await db.select(todosTable).from(todosTable).all()
+
     const rendered = await renderFile('views/index.html', {
         title: 'My todo app',
         todos,
@@ -35,7 +28,8 @@ app.get('/', async (c) => {
 
 app.get('/todo/:id', async (c) => {
     const id = Number(c.req.param('id'))
-    const todo = todos.find((todo) => todo.id === id)
+
+    const todo = await getTodoById(id)
 
     if (!todo) return c.notFound()
 
@@ -50,26 +44,24 @@ app.get('/todo/:id', async (c) => {
 app.post('/todos', async (c) => {
     const form = await c.req.formData()
 
+    await db.insert(todosTable).values({
+        title: form.get('title'),
+        done: false
+    })
 
-todos.push({
-    id: todos.length + 1,
-    title: form.get('title'),
-    done: false
-})
-
-
-return c.redirect('/')
+    return c.redirect('/')
 })
 
 
 app.post('/todo/:id', async (c) => {
     const id = Number(c.req.param('id'))
 
-    const todo = todos.find((todo) => todo.id === id)
+    const todo = await getTodoById(id)
 
     if (!todo) return c.notFound()
 
     const form = await c.req.formData()
+
     const newTitle = form.get('title')
 
     if (typeof newTitle === 'string' && newTitle.trim() !== '') {
@@ -80,13 +72,14 @@ app.post('/todo/:id', async (c) => {
 })
 
 
-
-
 app.get('/todos/:id/remove', async (c) => {
     const id = Number(c.req.param('id'))
 
-    const index = todos.findIndex((todo) => todo.id === id)
-    todos.splice(index, 1)
+    const todo = await getTodoById(id)
+    
+    if(!todo) return c.notFound()
+
+    await db.delete(todosTable).where(eq(todosTable.id, id))
 
     return c.redirect('/')
 
@@ -94,11 +87,15 @@ app.get('/todos/:id/remove', async (c) => {
 
 app.get('/toggle/:id', async (c) => {
     const id = Number(c.req.param('id'))
-    const todo = todos.find((todo) => todo.id === id)
+
+    const todo = await getTodoById(id)
 
     if (!todo) return c.notFound()
 
-    todo.done = !todo.done
+        await db
+            .update(todosTable)
+            .set({ done: !todo.done})
+            .where(eq(todosTable.id, id))
 
     return c.redirect(c.req.header("Referer"))
 })
@@ -108,3 +105,13 @@ app.get('/toggle/:id', async (c) => {
 serve(app, (info) => {
     console.log('App started on http://localhost:' + info.port)
 })
+
+const getTodoById = async (id) => {
+    const todo = await db
+    .select()
+    .from(todosTable)
+    .where(eq(todosTable.id, id))
+    .get()
+
+    return todo
+} 
