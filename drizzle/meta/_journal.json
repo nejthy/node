@@ -1,0 +1,13 @@
+{
+  "version": "7",
+  "dialect": "sqlite",
+  "entries": [
+    {
+      "idx": 0,
+      "version": "6",
+      "when": 1743010232216,
+      "tag": "0000_quiet_charles_xavier",
+      "breakpoints": true
+    }
+  ]
+}
